@@ -1,0 +1,75 @@
+{
+  "study_id": "refua-preclinical-demo",
+  "title": "28-day rat repeat-dose tox + TK",
+  "indication": "Oncology",
+  "species": "Rat",
+  "strain": "Sprague-Dawley",
+  "modality": "small_molecule",
+  "study_type": "repeat_dose_toxicology",
+  "start_date": "2026-03-01",
+  "duration_days": 28,
+  "dosing_days": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+  "objectives": [
+    "Establish toxicokinetic exposure over multiple dose levels",
+    "Characterize dose-limiting toxicity and reversibility"
+  ],
+  "arms": [
+    {
+      "arm_id": "vehicle",
+      "treatment": "vehicle_control",
+      "dose_mg_per_kg": 0.0,
+      "route": "PO",
+      "frequency_per_day": 1,
+      "n_animals": 10,
+      "sex": "mixed"
+    },
+    {
+      "arm_id": "low",
+      "treatment": "rx-001",
+      "dose_mg_per_kg": 10.0,
+      "route": "PO",
+      "frequency_per_day": 1,
+      "n_animals": 10,
+      "sex": "mixed"
+    },
+    {
+      "arm_id": "mid",
+      "treatment": "rx-001",
+      "dose_mg_per_kg": 30.0,
+      "route": "PO",
+      "frequency_per_day": 1,
+      "n_animals": 10,
+      "sex": "mixed"
+    },
+    {
+      "arm_id": "high",
+      "treatment": "rx-001",
+      "dose_mg_per_kg": 100.0,
+      "route": "PO",
+      "frequency_per_day": 1,
+      "n_animals": 10,
+      "sex": "mixed"
+    }
+  ],
+  "sampling": {
+    "analyte": "parent",
+    "matrix": "plasma",
+    "timepoints_hr": [0.5, 1.0, 2.0, 4.0, 8.0, 24.0],
+    "days": [1, 14],
+    "stabilization_minutes": 30
+  },
+  "glp": {
+    "statement_of_compliance": true,
+    "quality_assurance_unit": true,
+    "protocol_approved": true,
+    "sop_index": true,
+    "instrument_calibration_records": true,
+    "computer_system_validation": true,
+    "sample_chain_of_custody": true,
+    "raw_data_archival_plan": true
+  },
+  "metadata": {
+    "sponsor": "Refua Bio",
+    "facility": "Preclinical Site 01"
+  }
+}
