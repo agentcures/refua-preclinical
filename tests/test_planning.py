@@ -10,6 +10,7 @@ if str(SRC) not in sys.path:
 
 from refua_preclinical.models import default_study_spec
 from refua_preclinical.planning import build_study_plan, build_workup
+from refua_preclinical.cmc import default_cmc_templates
 
 
 def test_build_study_plan_has_expected_sections() -> None:
@@ -45,3 +46,18 @@ def test_build_workup_includes_bioanalysis_when_rows_provided() -> None:
     assert "schedule" in payload
     assert "bioanalysis" in payload
     assert payload["bioanalysis"]["parsed_rows"] == 1
+
+
+def test_build_workup_includes_cmc_when_requested() -> None:
+    study = default_study_spec()
+    templates = default_cmc_templates()
+    payload = build_workup(
+        study,
+        cmc_config=templates["cmc"],
+        stability_results=templates["stability_results_rows"],
+        batch_results=templates["batch_results"],
+        batch_id="BATCH-CMC-001",
+    )
+    assert "cmc" in payload
+    assert payload["cmc"]["batch_record"]["batch_id"] == "BATCH-CMC-001"
+    assert payload["cmc"]["release_assessment"]["passed"] is True

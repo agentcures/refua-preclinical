@@ -8,6 +8,14 @@ from random import Random
 from typing import Any
 
 from .bioanalytics import run_bioanalytical_pipeline
+from .cmc import (
+    assess_stability_results,
+    build_formulation_process_plan,
+    build_stability_study_plan,
+    default_cmc_templates,
+    evaluate_release_criteria,
+    generate_batch_record,
+)
 from .glp import evaluate_glp_readiness
 from .models import PreclinicalStudySpec, default_study_spec, study_spec_to_mapping
 from .scheduler import build_in_vivo_schedule
@@ -56,6 +64,10 @@ def build_workup(
     samples: list[dict[str, Any]] | None = None,
     seed: int = 7,
     lloq_ng_ml: float = 1.0,
+    cmc_config: dict[str, Any] | None = None,
+    stability_results: list[dict[str, Any]] | None = None,
+    batch_results: dict[str, Any] | list[dict[str, Any]] | None = None,
+    batch_id: str = "BATCH-001",
 ) -> dict[str, Any]:
     plan = build_study_plan(spec, seed=seed)
     schedule = build_in_vivo_schedule(spec)
@@ -73,6 +85,35 @@ def build_workup(
             samples,
             lloq_ng_ml=lloq_ng_ml,
         )
+
+    if (
+        cmc_config is not None
+        or stability_results is not None
+        or batch_results is not None
+    ):
+        cmc_payload: dict[str, Any] = {
+            "plan": build_formulation_process_plan(cmc_config),
+            "batch_record": generate_batch_record(cmc_config, batch_id=batch_id),
+            "stability_plan": build_stability_study_plan(
+                cmc_config,
+                batch_ids=[batch_id],
+            ),
+        }
+        release_criteria = cmc_payload["plan"]["cmc"]["release_criteria"]
+        stability_assessment: dict[str, Any] | None = None
+        if stability_results is not None:
+            stability_assessment = assess_stability_results(
+                stability_results,
+                release_criteria=release_criteria,
+            )
+            cmc_payload["stability_assessment"] = stability_assessment
+        if batch_results is not None:
+            cmc_payload["release_assessment"] = evaluate_release_criteria(
+                batch_results=batch_results,
+                release_criteria=release_criteria,
+                stability_assessment=stability_assessment,
+            )
+        payload["cmc"] = cmc_payload
 
     return payload
 
@@ -113,6 +154,7 @@ def render_plan_markdown(plan: dict[str, Any]) -> str:
 
 def default_templates() -> dict[str, Any]:
     study = default_study_spec()
+    cmc_templates = default_cmc_templates()
     sample_rows: list[dict[str, Any]] = []
     for arm in study.arms:
         for time_hr, concentration in (
@@ -138,6 +180,9 @@ def default_templates() -> dict[str, Any]:
     return {
         "study": study_spec_to_mapping(study),
         "bioanalysis_rows": sample_rows,
+        "cmc": cmc_templates["cmc"],
+        "cmc_batch_results": cmc_templates["batch_results"],
+        "cmc_stability_results_rows": cmc_templates["stability_results_rows"],
     }
 
 

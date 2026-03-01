@@ -7,6 +7,16 @@ from importlib.metadata import version as _distribution_version
 from pathlib import Path
 
 from .bioanalytics import run_bioanalytical_pipeline
+from .cmc import (
+    assess_stability_results,
+    build_formulation_process_plan,
+    build_stability_study_plan,
+    cmc_spec_from_mapping,
+    default_cmc_spec,
+    default_cmc_templates,
+    evaluate_release_criteria,
+    generate_batch_record,
+)
 from .glp import evaluate_glp_readiness
 from .models import (
     BioanalyticalSample,
@@ -50,12 +60,20 @@ __all__ = [
     "PreclinicalStudySpec",
     "SamplingPlanSpec",
     "StudyArmSpec",
+    "assess_stability_results",
     "build_in_vivo_schedule",
+    "build_formulation_process_plan",
+    "build_stability_study_plan",
     "build_study_plan",
     "build_workup",
+    "cmc_spec_from_mapping",
+    "default_cmc_spec",
+    "default_cmc_templates",
     "default_study_spec",
     "default_templates",
     "evaluate_glp_readiness",
+    "evaluate_release_criteria",
+    "generate_batch_record",
     "latest_preclinical_references",
     "render_plan_markdown",
     "run_bioanalytical_pipeline",

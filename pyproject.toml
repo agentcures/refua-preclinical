@@ -5,12 +5,22 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "refua-preclinical"
 version = "0.6.0"
-description = "GLP tox/pharmacology planning, in vivo scheduling, and bioanalytical pipelines for Refua."
+description = "GLP tox/pharmacology planning, in vivo scheduling, bioanalytical pipelines, and CMC workflows for Refua."
 readme = "README.md"
 requires-python = ">=3.11,<3.15"
 license = "MIT"
 authors = [{name = "JJ Ben-Joseph", email = "jj@tensorspace.ai"}]
-keywords = ["refua", "preclinical", "tox", "pharmacology", "bioanalysis", "glp"]
+keywords = [
+  "refua",
+  "preclinical",
+  "tox",
+  "pharmacology",
+  "bioanalysis",
+  "glp",
+  "cmc",
+  "formulation",
+  "stability",
+]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Science/Research",

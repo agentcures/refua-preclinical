@@ -5,6 +5,7 @@
 - GLP tox/pharmacology study planning
 - In vivo execution scheduling
 - Bioanalytical ETL/QC/group summaries/NCA-like metrics
+- CMC workflows: formulation/process development, batch records, stability studies, release criteria evaluation
 
 The package is designed for direct integration into `refua-studio` and `refua-deploy`.
 
@@ -18,6 +19,11 @@ The package is designed for direct integration into `refua-studio` and `refua-de
   - BLQ tracking vs LLOQ
   - grouped concentration summaries (mean/SD/CV)
   - AUC-last/Cmax/Tmax by arm/analyte
+- CMC toolkit:
+  - formulation and process development planning
+  - electronic batch record templates
+  - stability sample scheduling and trend analysis
+  - release criteria assessment (pass/hold decisions)
 - CLI + Python API.
 
 ## Install
@@ -71,20 +77,58 @@ refua-preclinical workup \
   --output artifacts/workup.json
 ```
 
+Build a CMC plan:
+
+```bash
+refua-preclinical cmc-plan \
+  --output artifacts/cmc_plan.json
+```
+
+Generate a batch record:
+
+```bash
+refua-preclinical batch-record \
+  --batch-id BATCH-001 \
+  --output artifacts/batch_record.json
+```
+
+Build a stability schedule:
+
+```bash
+refua-preclinical stability-plan \
+  --batch-id BATCH-001 \
+  --output artifacts/stability_plan.json
+```
+
+Evaluate release criteria:
+
+```bash
+refua-preclinical release-eval \
+  --batch-results artifacts/batch_results.json \
+  --stability-results artifacts/stability_results.json \
+  --output artifacts/release_eval.json
+```
+
 ## Python API
 
 ```python
 from refua_preclinical import (
+    build_formulation_process_plan,
     build_in_vivo_schedule,
+    build_stability_study_plan,
     build_study_plan,
     build_workup,
     default_study_spec,
+    generate_batch_record,
 )
 
 study = default_study_spec()
 plan = build_study_plan(study, seed=11)
 schedule = build_in_vivo_schedule(study)
 workup = build_workup(study)
+cmc_plan = build_formulation_process_plan()
+batch_record = generate_batch_record(batch_id="BATCH-001")
+stability_plan = build_stability_study_plan(batch_ids=["BATCH-001"])
 ```
 
 ## Research Basis (Current as of March 2026)
