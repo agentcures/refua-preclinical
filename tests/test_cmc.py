@@ -42,7 +42,9 @@ def test_stability_plan_and_assessment() -> None:
     assert len(templates["cmc_references"]) > 0
     criteria = cmc["release_criteria"]
 
-    stability_plan = build_stability_study_plan(cmc, batch_ids=["BATCH-001", "BATCH-002"])
+    stability_plan = build_stability_study_plan(
+        cmc, batch_ids=["BATCH-001", "BATCH-002"]
+    )
     assert stability_plan["sample_count"] > 0
     assert len(stability_plan["batch_ids"]) == 2
 
@@ -72,4 +74,6 @@ def test_release_eval_detects_out_of_specification() -> None:
     )
     assert failing_eval["passed"] is False
     assert failing_eval["decision"] == "hold"
-    assert any(item["test"] == "assay_percent" for item in failing_eval["failed_checks"])
+    assert any(
+        item["test"] == "assay_percent" for item in failing_eval["failed_checks"]
+    )

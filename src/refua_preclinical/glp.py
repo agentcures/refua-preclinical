@@ -9,9 +9,19 @@ from .models import GLPChecklistSpec
 
 def evaluate_glp_readiness(glp: GLPChecklistSpec) -> dict[str, Any]:
     items = [
-        _item("statement_of_compliance", "GLP statement of compliance", glp.statement_of_compliance),
-        _item("quality_assurance_unit", "Quality Assurance Unit assigned", glp.quality_assurance_unit),
-        _item("protocol_approved", "Protocol approved before start", glp.protocol_approved),
+        _item(
+            "statement_of_compliance",
+            "GLP statement of compliance",
+            glp.statement_of_compliance,
+        ),
+        _item(
+            "quality_assurance_unit",
+            "Quality Assurance Unit assigned",
+            glp.quality_assurance_unit,
+        ),
+        _item(
+            "protocol_approved", "Protocol approved before start", glp.protocol_approved
+        ),
         _item("sop_index", "Current SOP index available", glp.sop_index),
         _item(
             "instrument_calibration_records",

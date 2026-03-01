@@ -22,7 +22,10 @@ def test_build_study_plan_has_expected_sections() -> None:
     assert payload["summary"]["total_animals"] > 0
     assert payload["glp_readiness"]["ready"] is True
     assert payload["schedule_summary"]["event_count"] > 0
-    assert payload["randomization"]["assignment_count"] == payload["summary"]["total_animals"]
+    assert (
+        payload["randomization"]["assignment_count"]
+        == payload["summary"]["total_animals"]
+    )
 
 
 def test_build_workup_includes_bioanalysis_when_rows_provided() -> None:

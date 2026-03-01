@@ -180,7 +180,12 @@ def default_cmc_spec() -> dict[str, Any]:
             "incoming_material_controls": [
                 {
                     "material": "RX-001 API",
-                    "tests": ["identity", "assay", "related_substances", "particle_size"],
+                    "tests": [
+                        "identity",
+                        "assay",
+                        "related_substances",
+                        "particle_size",
+                    ],
                 },
                 {
                     "material": "Lactose monohydrate",
@@ -188,7 +193,10 @@ def default_cmc_spec() -> dict[str, Any]:
                 },
             ],
             "in_process_controls": [
-                {"operation": "blending", "tests": ["blend_uniformity_rsd_percent <= 5"]},
+                {
+                    "operation": "blending",
+                    "tests": ["blend_uniformity_rsd_percent <= 5"],
+                },
                 {
                     "operation": "compression",
                     "tests": [
@@ -415,7 +423,9 @@ def build_formulation_process_plan(
         or str(item["function"]).strip().lower() in {"api", "drug_substance"}
     )
     api_load_percent = (
-        float(api_mass_mg / total_unit_mass_mg * 100.0) if total_unit_mass_mg > 0 else 0.0
+        float(api_mass_mg / total_unit_mass_mg * 100.0)
+        if total_unit_mass_mg > 0
+        else 0.0
     )
     batch_size = int(cmc["target_batch_size_units"])
     theoretical_batch_mass_kg = float(total_unit_mass_mg * batch_size / 1_000_000.0)
@@ -452,7 +462,11 @@ def build_formulation_process_plan(
         )
     cqa_coverage_percent = (
         float(
-            sum(1 for item in cqa_release_coverage if item["covered_by_release_criteria"])
+            sum(
+                1
+                for item in cqa_release_coverage
+                if item["covered_by_release_criteria"]
+            )
             / len(cqa_release_coverage)
             * 100.0
         )
@@ -465,7 +479,10 @@ def build_formulation_process_plan(
         recommendations.append(
             "Add an explicit blending operation with blend-uniformity IPC coverage."
         )
-    if "compression" not in operations and cmc["dosage_form"].strip().lower() == "tablet":
+    if (
+        "compression" not in operations
+        and cmc["dosage_form"].strip().lower() == "tablet"
+    ):
         recommendations.append(
             "Tablet dosage form selected without a compression step; verify process design."
         )
@@ -703,11 +720,11 @@ def build_stability_study_plan(
     for batch_id in resolved_batch_ids:
         for condition in conditions:
             for month in timepoints:
-                due_date = (start + timedelta(days=int(float(month) * 30.4375))).isoformat()
+                due_date = (
+                    start + timedelta(days=int(float(month) * 30.4375))
+                ).isoformat()
                 for replicate in range(1, replicates + 1):
-                    sample_id = (
-                        f"{batch_id}-{condition['condition_id']}-M{int(month)}-R{replicate}"
-                    )
+                    sample_id = f"{batch_id}-{condition['condition_id']}-M{int(month)}-R{replicate}"
                     samples.append(
                         {
                             "sample_id": sample_id,
@@ -902,9 +919,7 @@ def evaluate_release_criteria(
     for idx, cqa in enumerate(cqa_rows):
         if not isinstance(cqa, Mapping):
             continue
-        linked_test = str(
-            cqa.get("linked_test") or cqa.get("attribute") or ""
-        ).strip()
+        linked_test = str(cqa.get("linked_test") or cqa.get("attribute") or "").strip()
         if not linked_test:
             continue
         if linked_test not in observed:
@@ -1000,7 +1015,9 @@ def _default_stability_rows(cmc: Mapping[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(first_condition, Mapping):
         return []
     condition_id = str(first_condition.get("condition_id", "long_term_25c_60rh"))
-    unit_overrides = {name: str(spec.get("unit", "")) for name, spec in criteria.items()}
+    unit_overrides = {
+        name: str(spec.get("unit", "")) for name, spec in criteria.items()
+    }
 
     timepoints = [0, 3, 6, 12]
     max_month = max(timepoints)
@@ -1114,7 +1131,11 @@ def _normalize_process_validation_plan(
     stage1_activities = _normalize_string_list(
         stage1.get(
             "activities",
-            stage1_default.get("activities", []) if isinstance(stage1_default, Mapping) else [],
+            (
+                stage1_default.get("activities", [])
+                if isinstance(stage1_default, Mapping)
+                else []
+            ),
         ),
         field_name="process_validation_plan.stage1_process_design.activities",
     )
@@ -1128,7 +1149,11 @@ def _normalize_process_validation_plan(
     stage2["batch_count"] = _required_int(
         stage2.get(
             "batch_count",
-            stage2_default.get("batch_count", 1) if isinstance(stage2_default, Mapping) else 1,
+            (
+                stage2_default.get("batch_count", 1)
+                if isinstance(stage2_default, Mapping)
+                else 1
+            ),
         ),
         "process_validation_plan.stage2_ppq.batch_count",
         minimum=1,
@@ -1209,7 +1234,9 @@ def _normalize_process_steps(value: Any) -> list[dict[str, Any]]:
     for idx, item in enumerate(value):
         if not isinstance(item, Mapping):
             raise ValueError(f"process_steps[{idx}] must be an object.")
-        step_id = str(item.get("step_id", f"S{idx + 1:02d}") or f"S{idx + 1:02d}").strip()
+        step_id = str(
+            item.get("step_id", f"S{idx + 1:02d}") or f"S{idx + 1:02d}"
+        ).strip()
         operation = _required_str(
             item.get("operation"),
             f"process_steps[{idx}].operation",

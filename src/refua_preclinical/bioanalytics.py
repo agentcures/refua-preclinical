@@ -7,7 +7,6 @@ from typing import Any
 
 from .models import BioanalyticalSample, PreclinicalStudySpec
 
-
 _REQUIRED_SAMPLE_FIELDS = {
     "sample_id",
     "arm_id",
@@ -51,9 +50,7 @@ def run_bioanalytical_pipeline(
         try:
             concentration_raw = row.get("concentration_ng_ml")
             concentration = (
-                None
-                if concentration_raw in (None, "")
-                else float(concentration_raw)
+                None if concentration_raw in (None, "") else float(concentration_raw)
             )
             sample = BioanalyticalSample(
                 sample_id=str(row["sample_id"]),
@@ -113,7 +110,9 @@ def run_bioanalytical_pipeline(
     }
 
 
-def _group_summary(samples: list[BioanalyticalSample], *, lloq_ng_ml: float) -> list[dict[str, Any]]:
+def _group_summary(
+    samples: list[BioanalyticalSample], *, lloq_ng_ml: float
+) -> list[dict[str, Any]]:
     grouped: dict[tuple[str, str, float], list[float]] = {}
     blq_counts: dict[tuple[str, str, float], int] = {}
 
@@ -134,7 +133,11 @@ def _group_summary(samples: list[BioanalyticalSample], *, lloq_ng_ml: float) -> 
         n = len(values)
         mean = (sum(values) / n) if n else None
         sd = _stdev(values) if n > 1 else None
-        cv = (float(sd / mean * 100.0) if (sd is not None and mean not in (None, 0.0)) else None)
+        cv = (
+            float(sd / mean * 100.0)
+            if (sd is not None and mean not in (None, 0.0))
+            else None
+        )
         rows.append(
             {
                 "arm_id": key[0],

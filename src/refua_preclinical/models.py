@@ -149,10 +149,18 @@ def study_spec_from_mapping(data: dict[str, Any]) -> PreclinicalStudySpec:
         arm = StudyArmSpec(
             arm_id=_required_str(item.get("arm_id"), f"arms[{index}].arm_id"),
             treatment=_required_str(item.get("treatment"), f"arms[{index}].treatment"),
-            dose_mg_per_kg=_required_float(item.get("dose_mg_per_kg"), f"arms[{index}].dose_mg_per_kg"),
+            dose_mg_per_kg=_required_float(
+                item.get("dose_mg_per_kg"), f"arms[{index}].dose_mg_per_kg"
+            ),
             route=str(item.get("route", "PO") or "PO"),
-            frequency_per_day=_required_int(item.get("frequency_per_day", 1), f"arms[{index}].frequency_per_day", minimum=1),
-            n_animals=_required_int(item.get("n_animals", 8), f"arms[{index}].n_animals", minimum=1),
+            frequency_per_day=_required_int(
+                item.get("frequency_per_day", 1),
+                f"arms[{index}].frequency_per_day",
+                minimum=1,
+            ),
+            n_animals=_required_int(
+                item.get("n_animals", 8), f"arms[{index}].n_animals", minimum=1
+            ),
             sex=str(item.get("sex", "mixed") or "mixed"),
         )
         arms.append(arm)
@@ -171,8 +179,14 @@ def study_spec_from_mapping(data: dict[str, Any]) -> PreclinicalStudySpec:
     if not isinstance(sampling_raw, dict):
         raise ValueError("sampling must be an object")
     sampling = SamplingPlanSpec(
-        analyte=str(sampling_raw.get("analyte", default.sampling.analyte) or default.sampling.analyte),
-        matrix=str(sampling_raw.get("matrix", default.sampling.matrix) or default.sampling.matrix),
+        analyte=str(
+            sampling_raw.get("analyte", default.sampling.analyte)
+            or default.sampling.analyte
+        ),
+        matrix=str(
+            sampling_raw.get("matrix", default.sampling.matrix)
+            or default.sampling.matrix
+        ),
         timepoints_hr=_coerce_float_list(
             sampling_raw.get("timepoints_hr", default.sampling.timepoints_hr),
             field_name="sampling.timepoints_hr",
@@ -184,7 +198,9 @@ def study_spec_from_mapping(data: dict[str, Any]) -> PreclinicalStudySpec:
             minimum=1,
         ),
         stabilization_minutes=_required_int(
-            sampling_raw.get("stabilization_minutes", default.sampling.stabilization_minutes),
+            sampling_raw.get(
+                "stabilization_minutes", default.sampling.stabilization_minutes
+            ),
             "sampling.stabilization_minutes",
             minimum=0,
         ),
@@ -197,15 +213,26 @@ def study_spec_from_mapping(data: dict[str, Any]) -> PreclinicalStudySpec:
         raise ValueError("glp must be an object")
     glp_default = default.glp
     glp = GLPChecklistSpec(
-        statement_of_compliance=bool(glp_raw.get("statement_of_compliance", glp_default.statement_of_compliance)),
-        quality_assurance_unit=bool(glp_raw.get("quality_assurance_unit", glp_default.quality_assurance_unit)),
-        protocol_approved=bool(glp_raw.get("protocol_approved", glp_default.protocol_approved)),
+        statement_of_compliance=bool(
+            glp_raw.get("statement_of_compliance", glp_default.statement_of_compliance)
+        ),
+        quality_assurance_unit=bool(
+            glp_raw.get("quality_assurance_unit", glp_default.quality_assurance_unit)
+        ),
+        protocol_approved=bool(
+            glp_raw.get("protocol_approved", glp_default.protocol_approved)
+        ),
         sop_index=bool(glp_raw.get("sop_index", glp_default.sop_index)),
         instrument_calibration_records=bool(
-            glp_raw.get("instrument_calibration_records", glp_default.instrument_calibration_records)
+            glp_raw.get(
+                "instrument_calibration_records",
+                glp_default.instrument_calibration_records,
+            )
         ),
         computer_system_validation=bool(
-            glp_raw.get("computer_system_validation", glp_default.computer_system_validation)
+            glp_raw.get(
+                "computer_system_validation", glp_default.computer_system_validation
+            )
         ),
         sample_chain_of_custody=bool(
             glp_raw.get("sample_chain_of_custody", glp_default.sample_chain_of_custody)
@@ -235,9 +262,15 @@ def study_spec_from_mapping(data: dict[str, Any]) -> PreclinicalStudySpec:
         species=species,
         strain=strain,
         modality=str(data.get("modality", default.modality) or default.modality),
-        study_type=str(data.get("study_type", default.study_type) or default.study_type),
-        start_date=str(data.get("start_date", default.start_date) or default.start_date),
-        duration_days=_required_int(data.get("duration_days", default.duration_days), "duration_days", minimum=1),
+        study_type=str(
+            data.get("study_type", default.study_type) or default.study_type
+        ),
+        start_date=str(
+            data.get("start_date", default.start_date) or default.start_date
+        ),
+        duration_days=_required_int(
+            data.get("duration_days", default.duration_days), "duration_days", minimum=1
+        ),
         dosing_days=sorted(set(dosing_days)),
         objectives=objectives,
         arms=arms,

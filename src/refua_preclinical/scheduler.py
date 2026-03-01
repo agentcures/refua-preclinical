@@ -20,7 +20,9 @@ def build_in_vivo_schedule(spec: PreclinicalStudySpec) -> dict[str, Any]:
                 {
                     "event_id": f"evt-{index:06d}",
                     "study_day": day,
-                    "calendar_date": (start_date + timedelta(days=day - 1)).date().isoformat(),
+                    "calendar_date": (start_date + timedelta(days=day - 1))
+                    .date()
+                    .isoformat(),
                     "event_type": "observation",
                     "arm_id": arm.arm_id,
                     "time_offset_hr": 10.0,
@@ -42,7 +44,9 @@ def build_in_vivo_schedule(spec: PreclinicalStudySpec) -> dict[str, Any]:
                     {
                         "event_id": f"evt-{index:06d}",
                         "study_day": day,
-                        "calendar_date": (start_date + timedelta(days=day - 1)).date().isoformat(),
+                        "calendar_date": (start_date + timedelta(days=day - 1))
+                        .date()
+                        .isoformat(),
                         "event_type": "dose",
                         "arm_id": arm.arm_id,
                         "time_offset_hr": round(time_offset_hr, 2),
@@ -65,7 +69,9 @@ def build_in_vivo_schedule(spec: PreclinicalStudySpec) -> dict[str, Any]:
                     {
                         "event_id": f"evt-{index:06d}",
                         "study_day": day,
-                        "calendar_date": (start_date + timedelta(days=day - 1)).date().isoformat(),
+                        "calendar_date": (start_date + timedelta(days=day - 1))
+                        .date()
+                        .isoformat(),
                         "event_type": "sample",
                         "arm_id": arm.arm_id,
                         "time_offset_hr": float(time_hr),
@@ -82,7 +88,9 @@ def build_in_vivo_schedule(spec: PreclinicalStudySpec) -> dict[str, Any]:
         {
             "event_id": f"evt-{index:06d}",
             "study_day": spec.duration_days,
-            "calendar_date": (start_date + timedelta(days=spec.duration_days - 1)).date().isoformat(),
+            "calendar_date": (start_date + timedelta(days=spec.duration_days - 1))
+            .date()
+            .isoformat(),
             "event_type": "necropsy",
             "arm_id": "all",
             "time_offset_hr": 12.0,
@@ -93,7 +101,9 @@ def build_in_vivo_schedule(spec: PreclinicalStudySpec) -> dict[str, Any]:
         }
     )
 
-    events.sort(key=lambda item: (item["study_day"], item["time_offset_hr"], item["event_id"]))
+    events.sort(
+        key=lambda item: (item["study_day"], item["time_offset_hr"], item["event_id"])
+    )
 
     counts: dict[str, int] = {}
     by_day: dict[int, int] = {}

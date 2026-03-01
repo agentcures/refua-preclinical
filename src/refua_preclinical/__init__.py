@@ -28,7 +28,12 @@ from .models import (
     study_spec_from_mapping,
     study_spec_to_mapping,
 )
-from .planning import build_study_plan, build_workup, default_templates, render_plan_markdown
+from .planning import (
+    build_study_plan,
+    build_workup,
+    default_templates,
+    render_plan_markdown,
+)
 from .research import latest_cmc_references, latest_preclinical_references
 from .scheduler import build_in_vivo_schedule
 

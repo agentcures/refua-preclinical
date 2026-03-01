@@ -44,7 +44,9 @@ def load_rows(path: str | Path) -> list[dict[str, Any]]:
             rows = payload.get("rows")
             if isinstance(rows, list):
                 return [dict(item) for item in rows if isinstance(item, dict)]
-        raise ValueError("JSON samples file must contain a list of objects or {\"rows\": [...]} ")
+        raise ValueError(
+            'JSON samples file must contain a list of objects or {"rows": [...]} '
+        )
 
     if suffix == ".csv":
         rows: list[dict[str, Any]] = []
@@ -60,4 +62,6 @@ def load_rows(path: str | Path) -> list[dict[str, Any]]:
 def dump_json(path: str | Path, payload: dict[str, Any]) -> None:
     output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(payload, indent=2, sort_keys=False) + "\n", encoding="utf-8")
+    output.write_text(
+        json.dumps(payload, indent=2, sort_keys=False) + "\n", encoding="utf-8"
+    )

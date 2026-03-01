@@ -28,7 +28,9 @@ def test_cli_plan_and_schedule(tmp_path: Path) -> None:
     assert rc == 0
     assert plan_path.exists()
 
-    rc = main(["schedule", "--config", str(config_path), "--output", str(schedule_path)])
+    rc = main(
+        ["schedule", "--config", str(config_path), "--output", str(schedule_path)]
+    )
     assert rc == 0
     assert schedule_path.exists()
 

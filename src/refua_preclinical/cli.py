@@ -18,7 +18,12 @@ from .cmc import (
 )
 from .io import dump_json, load_mapping, load_rows
 from .models import default_study_spec, study_spec_from_mapping, study_spec_to_mapping
-from .planning import build_study_plan, build_workup, default_templates, render_plan_markdown
+from .planning import (
+    build_study_plan,
+    build_workup,
+    default_templates,
+    render_plan_markdown,
+)
 from .scheduler import build_in_vivo_schedule
 
 
@@ -30,48 +35,78 @@ def build_parser() -> argparse.ArgumentParser:
             "pipelines for Refua, with optional CMC workflows."
         ),
     )
-    parser.add_argument("--version", action="version", version=f"refua-preclinical {__version__}")
+    parser.add_argument(
+        "--version", action="version", version=f"refua-preclinical {__version__}"
+    )
 
     sub = parser.add_subparsers(dest="command", required=True)
 
     init_parser = sub.add_parser("init-config", help="Write starter study config JSON")
-    init_parser.add_argument("--output", required=True, type=Path, help="Output JSON path")
+    init_parser.add_argument(
+        "--output", required=True, type=Path, help="Output JSON path"
+    )
     init_parser.set_defaults(handler=_cmd_init_config)
 
     templates_parser = sub.add_parser("templates", help="Print default templates JSON")
-    templates_parser.add_argument("--output", type=Path, default=None, help="Optional output JSON")
+    templates_parser.add_argument(
+        "--output", type=Path, default=None, help="Optional output JSON"
+    )
     templates_parser.set_defaults(handler=_cmd_templates)
 
     cmc_templates_parser = sub.add_parser(
         "cmc-templates",
         help="Print default CMC templates JSON",
     )
-    cmc_templates_parser.add_argument("--output", type=Path, default=None, help="Optional output JSON")
+    cmc_templates_parser.add_argument(
+        "--output", type=Path, default=None, help="Optional output JSON"
+    )
     cmc_templates_parser.set_defaults(handler=_cmd_cmc_templates)
 
     plan_parser = sub.add_parser("plan", help="Build preclinical plan from config")
-    plan_parser.add_argument("--config", required=True, type=Path, help="Study config JSON/YAML")
+    plan_parser.add_argument(
+        "--config", required=True, type=Path, help="Study config JSON/YAML"
+    )
     plan_parser.add_argument("--seed", type=int, default=7, help="Randomization seed")
     plan_parser.add_argument("--output", required=True, type=Path, help="Output JSON")
-    plan_parser.add_argument("--markdown", type=Path, default=None, help="Optional markdown report")
+    plan_parser.add_argument(
+        "--markdown", type=Path, default=None, help="Optional markdown report"
+    )
     plan_parser.set_defaults(handler=_cmd_plan)
 
-    schedule_parser = sub.add_parser("schedule", help="Build in vivo schedule from config")
-    schedule_parser.add_argument("--config", required=True, type=Path, help="Study config JSON/YAML")
-    schedule_parser.add_argument("--output", required=True, type=Path, help="Output JSON")
+    schedule_parser = sub.add_parser(
+        "schedule", help="Build in vivo schedule from config"
+    )
+    schedule_parser.add_argument(
+        "--config", required=True, type=Path, help="Study config JSON/YAML"
+    )
+    schedule_parser.add_argument(
+        "--output", required=True, type=Path, help="Output JSON"
+    )
     schedule_parser.set_defaults(handler=_cmd_schedule)
 
     bio_parser = sub.add_parser("bioanalysis", help="Run bioanalytical pipeline")
-    bio_parser.add_argument("--config", required=True, type=Path, help="Study config JSON/YAML")
-    bio_parser.add_argument("--samples", required=True, type=Path, help="Samples JSON/CSV")
+    bio_parser.add_argument(
+        "--config", required=True, type=Path, help="Study config JSON/YAML"
+    )
+    bio_parser.add_argument(
+        "--samples", required=True, type=Path, help="Samples JSON/CSV"
+    )
     bio_parser.add_argument("--lloq", type=float, default=1.0, help="LLOQ in ng/mL")
     bio_parser.add_argument("--output", required=True, type=Path, help="Output JSON")
     bio_parser.set_defaults(handler=_cmd_bioanalysis)
 
-    workup_parser = sub.add_parser("workup", help="Run full preclinical planning workup")
-    workup_parser.add_argument("--config", required=True, type=Path, help="Study config JSON/YAML")
-    workup_parser.add_argument("--samples", type=Path, default=None, help="Optional samples JSON/CSV")
-    workup_parser.add_argument("--cmc-config", type=Path, default=None, help="Optional CMC config JSON/YAML")
+    workup_parser = sub.add_parser(
+        "workup", help="Run full preclinical planning workup"
+    )
+    workup_parser.add_argument(
+        "--config", required=True, type=Path, help="Study config JSON/YAML"
+    )
+    workup_parser.add_argument(
+        "--samples", type=Path, default=None, help="Optional samples JSON/CSV"
+    )
+    workup_parser.add_argument(
+        "--cmc-config", type=Path, default=None, help="Optional CMC config JSON/YAML"
+    )
     workup_parser.add_argument(
         "--stability-results",
         type=Path,
@@ -84,7 +119,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional batch release results JSON/CSV",
     )
-    workup_parser.add_argument("--batch-id", type=str, default="BATCH-001", help="CMC batch id for workup output")
+    workup_parser.add_argument(
+        "--batch-id",
+        type=str,
+        default="BATCH-001",
+        help="CMC batch id for workup output",
+    )
     workup_parser.add_argument("--seed", type=int, default=7, help="Randomization seed")
     workup_parser.add_argument("--lloq", type=float, default=1.0, help="LLOQ in ng/mL")
     workup_parser.add_argument("--output", required=True, type=Path, help="Output JSON")
@@ -94,43 +134,69 @@ def build_parser() -> argparse.ArgumentParser:
         "cmc-plan",
         help="Build formulation/process development plan",
     )
-    cmc_plan_parser.add_argument("--config", type=Path, default=None, help="Optional CMC config JSON/YAML")
-    cmc_plan_parser.add_argument("--output", required=True, type=Path, help="Output JSON")
+    cmc_plan_parser.add_argument(
+        "--config", type=Path, default=None, help="Optional CMC config JSON/YAML"
+    )
+    cmc_plan_parser.add_argument(
+        "--output", required=True, type=Path, help="Output JSON"
+    )
     cmc_plan_parser.set_defaults(handler=_cmd_cmc_plan)
 
     batch_record_parser = sub.add_parser(
         "batch-record",
         help="Generate batch manufacturing record template",
     )
-    batch_record_parser.add_argument("--config", type=Path, default=None, help="Optional CMC config JSON/YAML")
-    batch_record_parser.add_argument("--batch-id", required=True, type=str, help="Batch id")
-    batch_record_parser.add_argument("--operator", type=str, default="TBD", help="Operator name")
-    batch_record_parser.add_argument("--site", type=str, default="TBD", help="Manufacturing site")
-    batch_record_parser.add_argument("--manufacture-date", type=str, default=None, help="ISO date")
-    batch_record_parser.add_argument("--output", required=True, type=Path, help="Output JSON")
+    batch_record_parser.add_argument(
+        "--config", type=Path, default=None, help="Optional CMC config JSON/YAML"
+    )
+    batch_record_parser.add_argument(
+        "--batch-id", required=True, type=str, help="Batch id"
+    )
+    batch_record_parser.add_argument(
+        "--operator", type=str, default="TBD", help="Operator name"
+    )
+    batch_record_parser.add_argument(
+        "--site", type=str, default="TBD", help="Manufacturing site"
+    )
+    batch_record_parser.add_argument(
+        "--manufacture-date", type=str, default=None, help="ISO date"
+    )
+    batch_record_parser.add_argument(
+        "--output", required=True, type=Path, help="Output JSON"
+    )
     batch_record_parser.set_defaults(handler=_cmd_batch_record)
 
     stability_plan_parser = sub.add_parser(
         "stability-plan",
         help="Build stability sample schedule",
     )
-    stability_plan_parser.add_argument("--config", type=Path, default=None, help="Optional CMC config JSON/YAML")
+    stability_plan_parser.add_argument(
+        "--config", type=Path, default=None, help="Optional CMC config JSON/YAML"
+    )
     stability_plan_parser.add_argument(
         "--batch-id",
         action="append",
         default=None,
         help="Batch id (repeat flag to add multiple batches)",
     )
-    stability_plan_parser.add_argument("--output", required=True, type=Path, help="Output JSON")
+    stability_plan_parser.add_argument(
+        "--output", required=True, type=Path, help="Output JSON"
+    )
     stability_plan_parser.set_defaults(handler=_cmd_stability_plan)
 
     stability_analyze_parser = sub.add_parser(
         "stability-analyze",
         help="Assess stability results against criteria and trends",
     )
-    stability_analyze_parser.add_argument("--results", required=True, type=Path, help="Results JSON/CSV")
-    stability_analyze_parser.add_argument("--config", type=Path, default=None, help="Optional CMC config JSON/YAML")
-    stability_analyze_parser.add_argument("--output", required=True, type=Path, help="Output JSON")
+    stability_analyze_parser.add_argument(
+        "--results", required=True, type=Path, help="Results JSON/CSV"
+    )
+    stability_analyze_parser.add_argument(
+        "--config", type=Path, default=None, help="Optional CMC config JSON/YAML"
+    )
+    stability_analyze_parser.add_argument(
+        "--output", required=True, type=Path, help="Output JSON"
+    )
     stability_analyze_parser.set_defaults(handler=_cmd_stability_analyze)
 
     release_eval_parser = sub.add_parser(
@@ -143,14 +209,18 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="Batch results JSON/CSV",
     )
-    release_eval_parser.add_argument("--config", type=Path, default=None, help="Optional CMC config JSON/YAML")
+    release_eval_parser.add_argument(
+        "--config", type=Path, default=None, help="Optional CMC config JSON/YAML"
+    )
     release_eval_parser.add_argument(
         "--stability-results",
         type=Path,
         default=None,
         help="Optional stability results JSON/CSV",
     )
-    release_eval_parser.add_argument("--output", required=True, type=Path, help="Output JSON")
+    release_eval_parser.add_argument(
+        "--output", required=True, type=Path, help="Output JSON"
+    )
     release_eval_parser.set_defaults(handler=_cmd_release_eval)
 
     return parser
@@ -236,21 +306,33 @@ def _cmd_workup(args: argparse.Namespace) -> int:
     if args.stability_results is not None:
         stability_payload = _load_payload(args.stability_results)
         if isinstance(stability_payload, list):
-            stability_results = [dict(item) for item in stability_payload if isinstance(item, dict)]
-        elif isinstance(stability_payload, dict) and isinstance(stability_payload.get("rows"), list):
             stability_results = [
-                dict(item) for item in stability_payload["rows"] if isinstance(item, dict)
+                dict(item) for item in stability_payload if isinstance(item, dict)
+            ]
+        elif isinstance(stability_payload, dict) and isinstance(
+            stability_payload.get("rows"), list
+        ):
+            stability_results = [
+                dict(item)
+                for item in stability_payload["rows"]
+                if isinstance(item, dict)
             ]
         else:
-            raise ValueError("stability_results payload must be a list of objects or {rows:[...]}.")
+            raise ValueError(
+                "stability_results payload must be a list of objects or {rows:[...]}."
+            )
     if args.batch_results is not None:
         batch_payload = _load_payload(args.batch_results)
         if isinstance(batch_payload, dict):
             batch_results = dict(batch_payload)
         elif isinstance(batch_payload, list):
-            batch_results = [dict(item) for item in batch_payload if isinstance(item, dict)]
+            batch_results = [
+                dict(item) for item in batch_payload if isinstance(item, dict)
+            ]
         else:
-            raise ValueError("batch_results payload must be an object or list of objects.")
+            raise ValueError(
+                "batch_results payload must be an object or list of objects."
+            )
     cmc_config = _load_cmc_config(args.cmc_config)
     payload = build_workup(
         spec,
@@ -303,7 +385,9 @@ def _cmd_stability_analyze(args: argparse.Namespace) -> int:
     if isinstance(rows_payload, dict):
         rows_raw = rows_payload.get("rows", rows_payload.get("results"))
         if not isinstance(rows_raw, list):
-            raise ValueError("stability results object must include rows or results list.")
+            raise ValueError(
+                "stability results object must include rows or results list."
+            )
         rows = [dict(item) for item in rows_raw if isinstance(item, dict)]
     elif isinstance(rows_payload, list):
         rows = [dict(item) for item in rows_payload if isinstance(item, dict)]
@@ -338,7 +422,9 @@ def _cmd_release_eval(args: argparse.Namespace) -> int:
     if args.stability_results is not None:
         stability_payload = _load_payload(args.stability_results)
         if isinstance(stability_payload, dict):
-            stability_rows_raw = stability_payload.get("rows", stability_payload.get("results"))
+            stability_rows_raw = stability_payload.get(
+                "rows", stability_payload.get("results")
+            )
             if not isinstance(stability_rows_raw, list):
                 raise ValueError(
                     "stability_results object must include rows or results list."
@@ -347,7 +433,9 @@ def _cmd_release_eval(args: argparse.Namespace) -> int:
                 dict(item) for item in stability_rows_raw if isinstance(item, dict)
             ]
         elif isinstance(stability_payload, list):
-            stability_rows = [dict(item) for item in stability_payload if isinstance(item, dict)]
+            stability_rows = [
+                dict(item) for item in stability_payload if isinstance(item, dict)
+            ]
         else:
             raise ValueError("stability_results payload must be a list/object.")
         stability_assessment = assess_stability_results(
