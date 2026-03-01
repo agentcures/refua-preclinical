@@ -332,6 +332,7 @@ def _cmd_release_eval(args: argparse.Namespace) -> int:
     cmc = _load_cmc_config(args.config)
     plan = build_formulation_process_plan(cmc)
     criteria = plan["cmc"]["release_criteria"]
+    critical_quality_attributes = plan["cmc"]["critical_quality_attributes"]
 
     stability_assessment: dict[str, Any] | None = None
     if args.stability_results is not None:
@@ -358,6 +359,7 @@ def _cmd_release_eval(args: argparse.Namespace) -> int:
         batch_results=batch_results,
         release_criteria=criteria,
         stability_assessment=stability_assessment,
+        critical_quality_attributes=critical_quality_attributes,
     )
     dump_json(args.output, payload)
     print(f"Wrote release assessment: {Path(args.output).resolve()}")

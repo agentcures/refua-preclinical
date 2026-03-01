@@ -22,19 +22,24 @@ def test_cmc_plan_and_batch_record_structure() -> None:
     plan = build_formulation_process_plan()
     assert plan["summary"]["component_count"] > 0
     assert plan["summary"]["process_step_count"] > 0
+    assert plan["summary"]["cqa_count"] > 0
     assert "release_criteria" in plan["cmc"]
+    assert "quality_by_design" in plan
+    assert len(plan["science_basis"]) > 0
 
     batch_record = generate_batch_record(batch_id="BATCH-QA-001")
     assert batch_record["batch_id"] == "BATCH-QA-001"
     assert len(batch_record["material_dispense"]) > 0
     assert len(batch_record["process_execution_record"]) > 0
     assert len(batch_record["release_testing"]) > 0
+    assert len(batch_record["continued_process_verification"]["metrics"]) > 0
 
 
 def test_stability_plan_and_assessment() -> None:
     templates = default_cmc_templates()
     cmc = templates["cmc"]
     stability_rows = templates["stability_results_rows"]
+    assert len(templates["cmc_references"]) > 0
     criteria = cmc["release_criteria"]
 
     stability_plan = build_stability_study_plan(cmc, batch_ids=["BATCH-001", "BATCH-002"])
@@ -68,4 +73,3 @@ def test_release_eval_detects_out_of_specification() -> None:
     assert failing_eval["passed"] is False
     assert failing_eval["decision"] == "hold"
     assert any(item["test"] == "assay_percent" for item in failing_eval["failed_checks"])
-

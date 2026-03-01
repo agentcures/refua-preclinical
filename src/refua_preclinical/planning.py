@@ -18,6 +18,7 @@ from .cmc import (
 )
 from .glp import evaluate_glp_readiness
 from .models import PreclinicalStudySpec, default_study_spec, study_spec_to_mapping
+from .research import latest_cmc_references
 from .scheduler import build_in_vivo_schedule
 
 
@@ -112,7 +113,11 @@ def build_workup(
                 batch_results=batch_results,
                 release_criteria=release_criteria,
                 stability_assessment=stability_assessment,
+                critical_quality_attributes=cmc_payload["plan"]["cmc"][
+                    "critical_quality_attributes"
+                ],
             )
+        cmc_payload["references"] = latest_cmc_references()
         payload["cmc"] = cmc_payload
 
     return payload
@@ -183,6 +188,7 @@ def default_templates() -> dict[str, Any]:
         "cmc": cmc_templates["cmc"],
         "cmc_batch_results": cmc_templates["batch_results"],
         "cmc_stability_results_rows": cmc_templates["stability_results_rows"],
+        "cmc_references": cmc_templates["cmc_references"],
     }
 
 

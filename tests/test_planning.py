@@ -61,3 +61,4 @@ def test_build_workup_includes_cmc_when_requested() -> None:
     assert "cmc" in payload
     assert payload["cmc"]["batch_record"]["batch_id"] == "BATCH-CMC-001"
     assert payload["cmc"]["release_assessment"]["passed"] is True
+    assert len(payload["cmc"]["references"]) > 0

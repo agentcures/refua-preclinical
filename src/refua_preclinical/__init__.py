@@ -29,7 +29,7 @@ from .models import (
     study_spec_to_mapping,
 )
 from .planning import build_study_plan, build_workup, default_templates, render_plan_markdown
-from .research import latest_preclinical_references
+from .research import latest_cmc_references, latest_preclinical_references
 from .scheduler import build_in_vivo_schedule
 
 
@@ -74,6 +74,7 @@ __all__ = [
     "evaluate_glp_readiness",
     "evaluate_release_criteria",
     "generate_batch_record",
+    "latest_cmc_references",
     "latest_preclinical_references",
     "render_plan_markdown",
     "run_bioanalytical_pipeline",

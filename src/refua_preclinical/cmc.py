@@ -12,6 +12,8 @@ from __future__ import annotations
 from datetime import UTC, date, datetime, timedelta
 from typing import Any, Mapping
 
+from .research import latest_cmc_references
+
 
 def default_cmc_spec() -> dict[str, Any]:
     """Return a starter CMC configuration."""
@@ -20,6 +22,13 @@ def default_cmc_spec() -> dict[str, Any]:
         "dosage_form": "tablet",
         "strength_mg": 50.0,
         "target_batch_size_units": 100_000,
+        "quality_target_product_profile": {
+            "route_of_administration": "oral",
+            "release_profile": "immediate_release",
+            "container_closure": "PVC/PVDC blister with Al lidding foil",
+            "shelf_life_target_months": 24,
+            "microbiological_quality": "nonsterile oral dosage form limits",
+        },
         "formulation": [
             {
                 "component": "RX-001 API",
@@ -94,6 +103,150 @@ def default_cmc_spec() -> dict[str, Any]:
                 "in_process_checks": ["count verification", "seal integrity"],
             },
         ],
+        "critical_quality_attributes": [
+            {
+                "attribute": "assay_percent",
+                "linked_test": "assay_percent",
+                "clinical_relevance": "dose accuracy and exposure consistency",
+            },
+            {
+                "attribute": "content_uniformity_av",
+                "linked_test": "content_uniformity_av",
+                "clinical_relevance": "unit dose uniformity and patient safety",
+            },
+            {
+                "attribute": "dissolution_q30_percent",
+                "linked_test": "dissolution_q30_percent",
+                "clinical_relevance": "in vivo bioperformance risk control",
+            },
+            {
+                "attribute": "total_impurities_percent",
+                "linked_test": "total_impurities_percent",
+                "clinical_relevance": "safety and degradant control",
+            },
+            {
+                "attribute": "water_content_percent",
+                "linked_test": "water_content_percent",
+                "clinical_relevance": "stability and degradation control",
+            },
+        ],
+        "critical_material_attributes": [
+            {
+                "material": "RX-001 API",
+                "attribute": "particle_size_d90_um",
+                "control": "10-80",
+                "impact": "blend uniformity and dissolution",
+            },
+            {
+                "material": "Lactose monohydrate",
+                "attribute": "moisture_percent",
+                "control": "<=5.0",
+                "impact": "flow and compression behavior",
+            },
+            {
+                "material": "Magnesium stearate",
+                "attribute": "specific_surface_area_m2_g",
+                "control": "1.0-2.2",
+                "impact": "lubrication and dissolution sensitivity",
+            },
+        ],
+        "critical_process_parameters": [
+            {
+                "step_id": "S02",
+                "parameter": "blend_rpm",
+                "target_range": "10-14",
+                "rationale": "blend uniformity reproducibility",
+            },
+            {
+                "step_id": "S02",
+                "parameter": "blend_time_min",
+                "target_range": "35-55",
+                "rationale": "uniform API distribution",
+            },
+            {
+                "step_id": "S03",
+                "parameter": "main_compression_force_kN",
+                "target_range": "10-18",
+                "rationale": "tablet hardness/friability balance",
+            },
+            {
+                "step_id": "S04",
+                "parameter": "inlet_temp_c",
+                "target_range": "50-60",
+                "rationale": "coating quality and residual moisture",
+            },
+        ],
+        "control_strategy": {
+            "incoming_material_controls": [
+                {
+                    "material": "RX-001 API",
+                    "tests": ["identity", "assay", "related_substances", "particle_size"],
+                },
+                {
+                    "material": "Lactose monohydrate",
+                    "tests": ["identity", "loss_on_drying"],
+                },
+            ],
+            "in_process_controls": [
+                {"operation": "blending", "tests": ["blend_uniformity_rsd_percent <= 5"]},
+                {
+                    "operation": "compression",
+                    "tests": [
+                        "tablet_weight_mg",
+                        "hardness_kp",
+                        "friability_percent <= 1",
+                    ],
+                },
+            ],
+            "cpv_metrics": [
+                {
+                    "metric": "tablet_weight_rsd_percent",
+                    "alert_limit": 3.0,
+                    "action_limit": 5.0,
+                    "frequency": "every_batch",
+                },
+                {
+                    "metric": "assay_mean_shift_percent",
+                    "alert_limit": 2.0,
+                    "action_limit": 3.0,
+                    "frequency": "every_batch",
+                },
+                {
+                    "metric": "dissolution_q30_percent",
+                    "alert_limit": 82.0,
+                    "action_limit": 80.0,
+                    "frequency": "every_batch",
+                },
+            ],
+        },
+        "process_validation_plan": {
+            "stage1_process_design": {
+                "status": "active",
+                "activities": [
+                    "excipient compatibility screening",
+                    "blend/compression design-space characterization",
+                ],
+            },
+            "stage2_ppq": {
+                "batch_count": 3,
+                "acceptance": "All CQAs meet criteria and no unresolved critical deviations.",
+            },
+            "stage3_cpv": {
+                "review_cadence": "monthly_first_6_batches_then_quarterly",
+                "governance": "cross_functional_PQR_board",
+            },
+        },
+        "lifecycle_management": {
+            "established_conditions": [
+                "formulation component ranges",
+                "critical process parameter proven ranges",
+                "analytical procedure lifecycle commitments",
+            ],
+            "post_approval_change_protocols": [
+                "site transfer comparability using dissolution/impurities and CU",
+                "equipment model change with bracketing PPQ lots",
+            ],
+        },
         "stability_plan": {
             "start_date": datetime.now(UTC).date().isoformat(),
             "conditions": [
@@ -113,6 +266,7 @@ def default_cmc_spec() -> dict[str, Any]:
             "timepoints_months": [0, 1, 3, 6, 9, 12, 18, 24],
             "tests": [
                 "assay_percent",
+                "content_uniformity_av",
                 "total_impurities_percent",
                 "dissolution_q30_percent",
                 "water_content_percent",
@@ -122,6 +276,7 @@ def default_cmc_spec() -> dict[str, Any]:
         },
         "release_criteria": {
             "assay_percent": {"min": 95.0, "max": 105.0, "unit": "% label claim"},
+            "content_uniformity_av": {"max": 15.0, "unit": "AV"},
             "total_impurities_percent": {"max": 2.0, "unit": "%"},
             "dissolution_q30_percent": {"min": 80.0, "unit": "%"},
             "water_content_percent": {"max": 3.0, "unit": "%"},
@@ -162,11 +317,54 @@ def cmc_spec_from_mapping(data: Mapping[str, Any] | None) -> dict[str, Any]:
         "target_batch_size_units",
         minimum=1,
     )
+    quality_target_product_profile = _normalize_object_mapping(
+        source.get(
+            "quality_target_product_profile",
+            default["quality_target_product_profile"],
+        ),
+        field_name="quality_target_product_profile",
+    )
     formulation = _normalize_formulation(
         source.get("formulation", default["formulation"]),
     )
     process_steps = _normalize_process_steps(
         source.get("process_steps", default["process_steps"]),
+    )
+    critical_quality_attributes = _normalize_object_list(
+        source.get(
+            "critical_quality_attributes",
+            default["critical_quality_attributes"],
+        ),
+        field_name="critical_quality_attributes",
+        required_fields=("attribute", "linked_test"),
+    )
+    critical_material_attributes = _normalize_object_list(
+        source.get(
+            "critical_material_attributes",
+            default["critical_material_attributes"],
+        ),
+        field_name="critical_material_attributes",
+        required_fields=("material", "attribute", "control"),
+    )
+    critical_process_parameters = _normalize_object_list(
+        source.get(
+            "critical_process_parameters",
+            default["critical_process_parameters"],
+        ),
+        field_name="critical_process_parameters",
+        required_fields=("step_id", "parameter", "target_range"),
+    )
+    control_strategy = _normalize_control_strategy(
+        source.get("control_strategy", default["control_strategy"]),
+        default_strategy=default["control_strategy"],
+    )
+    process_validation_plan = _normalize_process_validation_plan(
+        source.get("process_validation_plan", default["process_validation_plan"]),
+        default_plan=default["process_validation_plan"],
+    )
+    lifecycle_management = _normalize_lifecycle_management(
+        source.get("lifecycle_management", default["lifecycle_management"]),
+        default_plan=default["lifecycle_management"],
     )
     stability_plan = _normalize_stability_plan(
         source.get("stability_plan", default["stability_plan"]),
@@ -182,8 +380,15 @@ def cmc_spec_from_mapping(data: Mapping[str, Any] | None) -> dict[str, Any]:
         "dosage_form": dosage_form,
         "strength_mg": strength_mg,
         "target_batch_size_units": target_batch_size_units,
+        "quality_target_product_profile": quality_target_product_profile,
         "formulation": formulation,
         "process_steps": process_steps,
+        "critical_quality_attributes": critical_quality_attributes,
+        "critical_material_attributes": critical_material_attributes,
+        "critical_process_parameters": critical_process_parameters,
+        "control_strategy": control_strategy,
+        "process_validation_plan": process_validation_plan,
+        "lifecycle_management": lifecycle_management,
         "stability_plan": stability_plan,
         "release_criteria": release_criteria,
     }
@@ -196,6 +401,11 @@ def build_formulation_process_plan(
     cmc = cmc_spec_from_mapping(cmc_config)
     formulation = cmc["formulation"]
     process_steps = cmc["process_steps"]
+    cqas = cmc["critical_quality_attributes"]
+    cmas = cmc["critical_material_attributes"]
+    cpps = cmc["critical_process_parameters"]
+    release_criteria = cmc["release_criteria"]
+    qtpp = cmc["quality_target_product_profile"]
 
     total_unit_mass_mg = sum(float(item["amount_per_unit_mg"]) for item in formulation)
     api_mass_mg = sum(
@@ -215,6 +425,40 @@ def build_formulation_process_plan(
     )
     setpoint_count = sum(len(step["setpoints"]) for step in process_steps)
     operations = [str(step["operation"]).strip().lower() for step in process_steps]
+    step_ids = {str(step["step_id"]).strip() for step in process_steps}
+    cpp_step_ids = {
+        str(item.get("step_id", "")).strip()
+        for item in cpps
+        if str(item.get("step_id", "")).strip()
+    }
+    cpp_coverage_percent = (
+        float(len(step_ids.intersection(cpp_step_ids)) / len(step_ids) * 100.0)
+        if step_ids
+        else 0.0
+    )
+
+    cqa_release_coverage: list[dict[str, Any]] = []
+    for cqa in cqas:
+        cqa_name = str(cqa.get("attribute", "")).strip()
+        linked_test = str(cqa.get("linked_test", "")).strip()
+        linked = linked_test or cqa_name
+        covered = linked in release_criteria
+        cqa_release_coverage.append(
+            {
+                "attribute": cqa_name,
+                "linked_test": linked,
+                "covered_by_release_criteria": covered,
+            }
+        )
+    cqa_coverage_percent = (
+        float(
+            sum(1 for item in cqa_release_coverage if item["covered_by_release_criteria"])
+            / len(cqa_release_coverage)
+            * 100.0
+        )
+        if cqa_release_coverage
+        else 0.0
+    )
 
     recommendations: list[str] = []
     if "blending" not in operations:
@@ -232,6 +476,19 @@ def build_formulation_process_plan(
     if setpoint_count < len(process_steps):
         recommendations.append(
             "At least one process step has no quantitative setpoints; add CPP targets."
+        )
+    if cqa_coverage_percent < 100.0:
+        recommendations.append(
+            "At least one CQA is not mapped to a release criterion; close analytical control gaps."
+        )
+    if cpp_coverage_percent < 100.0:
+        recommendations.append(
+            "At least one process step has no mapped CPP; complete process characterization ranges."
+        )
+    cpv_metrics = cmc["control_strategy"]["cpv_metrics"]
+    if not cpv_metrics:
+        recommendations.append(
+            "Define CPV metrics with alert/action limits before PPQ execution."
         )
     if not recommendations:
         recommendations.append(
@@ -253,6 +510,12 @@ def build_formulation_process_plan(
             "theoretical_batch_mass_kg": round(theoretical_batch_mass_kg, 6),
             "in_process_check_count": in_process_check_count,
             "setpoint_count": setpoint_count,
+            "cqa_count": len(cqas),
+            "cma_count": len(cmas),
+            "cpp_count": len(cpps),
+            "cqa_release_coverage_percent": round(cqa_coverage_percent, 2),
+            "cpp_step_coverage_percent": round(cpp_coverage_percent, 2),
+            "qtpp_shelf_life_target_months": qtpp.get("shelf_life_target_months"),
         },
         "formulation_development": {
             "components": formulation,
@@ -264,6 +527,17 @@ def build_formulation_process_plan(
             "steps": process_steps,
             "operations": operations,
         },
+        "quality_by_design": {
+            "quality_target_product_profile": qtpp,
+            "critical_quality_attributes": cqas,
+            "critical_material_attributes": cmas,
+            "critical_process_parameters": cpps,
+            "cqa_release_coverage": cqa_release_coverage,
+        },
+        "control_strategy": cmc["control_strategy"],
+        "process_validation_plan": cmc["process_validation_plan"],
+        "lifecycle_management": cmc["lifecycle_management"],
+        "science_basis": latest_cmc_references(),
         "recommendations": recommendations,
     }
 
@@ -280,6 +554,17 @@ def generate_batch_record(
     cmc = cmc_spec_from_mapping(cmc_config)
     batch_key = _required_str(batch_id, "batch_id")
     batch_size = int(cmc["target_batch_size_units"])
+    qtpp = cmc["quality_target_product_profile"]
+    cqas = cmc["critical_quality_attributes"]
+    control_strategy = cmc["control_strategy"]
+    lifecycle_management = cmc["lifecycle_management"]
+    cpps = cmc["critical_process_parameters"]
+    cpp_by_step: dict[str, list[dict[str, Any]]] = {}
+    for cpp in cpps:
+        step_id = str(cpp.get("step_id", "")).strip()
+        if not step_id:
+            continue
+        cpp_by_step.setdefault(step_id, []).append(dict(cpp))
     manufacture_date_value = (
         str(manufacture_date).strip()
         if manufacture_date is not None and str(manufacture_date).strip()
@@ -312,6 +597,10 @@ def generate_batch_record(
                 "equipment": step["equipment"],
                 "target_duration_min": step["duration_min"],
                 "setpoints": dict(step["setpoints"]),
+                "critical_process_parameters": cpp_by_step.get(
+                    str(step["step_id"]).strip(),
+                    [],
+                ),
                 "in_process_checks": [
                     {"test": test_name, "observed": None, "pass": None}
                     for test_name in step["in_process_checks"]
@@ -350,7 +639,9 @@ def generate_batch_record(
             "operator": _required_str(operator, "operator"),
             "manufacture_date": manufacture_date_value,
             "target_batch_size_units": batch_size,
+            "qtpp": qtpp,
         },
+        "critical_quality_attributes": cqas,
         "material_dispense": material_dispense,
         "process_execution_record": execution_steps,
         "yield_reconciliation": {
@@ -365,6 +656,23 @@ def generate_batch_record(
             "approved_by": None,
             "approved_at": None,
         },
+        "continued_process_verification": {
+            "metrics": control_strategy.get("cpv_metrics", []),
+            "review_cadence": cmc["process_validation_plan"]["stage3_cpv"].get(
+                "review_cadence"
+            ),
+        },
+        "lifecycle_management_controls": {
+            "established_conditions": lifecycle_management.get(
+                "established_conditions",
+                [],
+            ),
+            "post_approval_change_protocols": lifecycle_management.get(
+                "post_approval_change_protocols",
+                [],
+            ),
+        },
+        "science_basis": latest_cmc_references(),
     }
 
 
@@ -418,6 +726,7 @@ def build_stability_study_plan(
     return {
         "generated_at": datetime.now(UTC).isoformat(),
         "product_name": cmc["product_name"],
+        "quality_target_product_profile": cmc["quality_target_product_profile"],
         "batch_ids": resolved_batch_ids,
         "start_date": start.isoformat(),
         "condition_count": len(conditions),
@@ -426,6 +735,7 @@ def build_stability_study_plan(
         "replicates_per_timepoint": replicates,
         "sample_count": len(samples),
         "samples": samples,
+        "science_basis": latest_cmc_references(),
     }
 
 
@@ -535,6 +845,7 @@ def evaluate_release_criteria(
     release_criteria: Mapping[str, Any],
     *,
     stability_assessment: Mapping[str, Any] | None = None,
+    critical_quality_attributes: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Evaluate release criteria against observed batch test results."""
     criteria = _normalize_release_criteria(
@@ -582,6 +893,34 @@ def evaluate_release_criteria(
             failed.append(check)
         checks.append(check)
 
+    cqa_missing_tests: list[str] = []
+    cqa_rows = (
+        critical_quality_attributes
+        if isinstance(critical_quality_attributes, list)
+        else []
+    )
+    for idx, cqa in enumerate(cqa_rows):
+        if not isinstance(cqa, Mapping):
+            continue
+        linked_test = str(
+            cqa.get("linked_test") or cqa.get("attribute") or ""
+        ).strip()
+        if not linked_test:
+            continue
+        if linked_test not in observed:
+            cqa_missing_tests.append(linked_test)
+            failed.append(
+                {
+                    "test": linked_test,
+                    "observed": None,
+                    "minimum": None,
+                    "maximum": None,
+                    "unit": None,
+                    "pass": False,
+                    "reason": f"missing_cqa_linked_result[{idx}]",
+                }
+            )
+
     stability_oos_count = 0
     if isinstance(stability_assessment, Mapping):
         raw_oos = stability_assessment.get("oos_count")
@@ -613,6 +952,7 @@ def evaluate_release_criteria(
         "checks": checks,
         "failed_checks": failed,
         "stability_oos_count": stability_oos_count,
+        "missing_cqa_linked_tests": sorted(set(cqa_missing_tests)),
     }
 
 
@@ -623,6 +963,7 @@ def default_cmc_templates() -> dict[str, Any]:
         "cmc": cmc,
         "batch_results": _default_batch_results(cmc["release_criteria"]),
         "stability_results_rows": _default_stability_rows(cmc),
+        "cmc_references": latest_cmc_references(),
     }
 
 
@@ -690,6 +1031,147 @@ def _default_stability_rows(cmc: Mapping[str, Any]) -> list[dict[str, Any]]:
                 }
             )
     return rows
+
+
+def _normalize_object_mapping(value: Any, *, field_name: str) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{field_name} must be an object.")
+    return {str(key): _jsonable_value(raw) for key, raw in value.items()}
+
+
+def _normalize_object_list(
+    value: Any,
+    *,
+    field_name: str,
+    required_fields: tuple[str, ...] = (),
+) -> list[dict[str, Any]]:
+    if not isinstance(value, list) or not value:
+        raise ValueError(f"{field_name} must be a non-empty list of objects.")
+    normalized: list[dict[str, Any]] = []
+    for idx, row in enumerate(value):
+        if not isinstance(row, Mapping):
+            raise ValueError(f"{field_name}[{idx}] must be an object.")
+        normalized_row = {str(key): _jsonable_value(raw) for key, raw in row.items()}
+        for required in required_fields:
+            _required_str(
+                normalized_row.get(required),
+                f"{field_name}[{idx}].{required}",
+            )
+        normalized.append(normalized_row)
+    return normalized
+
+
+def _normalize_control_strategy(
+    value: Any,
+    *,
+    default_strategy: Mapping[str, Any],
+) -> dict[str, Any]:
+    raw = value if isinstance(value, Mapping) else default_strategy
+    if not isinstance(raw, Mapping):
+        raise ValueError("control_strategy must be an object.")
+    incoming_material_controls = _normalize_object_list(
+        raw.get(
+            "incoming_material_controls",
+            default_strategy.get("incoming_material_controls", []),
+        ),
+        field_name="control_strategy.incoming_material_controls",
+        required_fields=("material",),
+    )
+    in_process_controls = _normalize_object_list(
+        raw.get(
+            "in_process_controls",
+            default_strategy.get("in_process_controls", []),
+        ),
+        field_name="control_strategy.in_process_controls",
+        required_fields=("operation",),
+    )
+    cpv_metrics = _normalize_object_list(
+        raw.get("cpv_metrics", default_strategy.get("cpv_metrics", [])),
+        field_name="control_strategy.cpv_metrics",
+        required_fields=("metric",),
+    )
+    return {
+        "incoming_material_controls": incoming_material_controls,
+        "in_process_controls": in_process_controls,
+        "cpv_metrics": cpv_metrics,
+    }
+
+
+def _normalize_process_validation_plan(
+    value: Any,
+    *,
+    default_plan: Mapping[str, Any],
+) -> dict[str, Any]:
+    raw = value if isinstance(value, Mapping) else default_plan
+    if not isinstance(raw, Mapping):
+        raise ValueError("process_validation_plan must be an object.")
+
+    stage1_default = default_plan.get("stage1_process_design", {})
+    stage1 = _normalize_object_mapping(
+        raw.get("stage1_process_design", stage1_default),
+        field_name="process_validation_plan.stage1_process_design",
+    )
+    stage1_activities = _normalize_string_list(
+        stage1.get(
+            "activities",
+            stage1_default.get("activities", []) if isinstance(stage1_default, Mapping) else [],
+        ),
+        field_name="process_validation_plan.stage1_process_design.activities",
+    )
+    stage1["activities"] = stage1_activities
+
+    stage2_default = default_plan.get("stage2_ppq", {})
+    stage2 = _normalize_object_mapping(
+        raw.get("stage2_ppq", stage2_default),
+        field_name="process_validation_plan.stage2_ppq",
+    )
+    stage2["batch_count"] = _required_int(
+        stage2.get(
+            "batch_count",
+            stage2_default.get("batch_count", 1) if isinstance(stage2_default, Mapping) else 1,
+        ),
+        "process_validation_plan.stage2_ppq.batch_count",
+        minimum=1,
+    )
+
+    stage3 = _normalize_object_mapping(
+        raw.get("stage3_cpv", default_plan.get("stage3_cpv", {})),
+        field_name="process_validation_plan.stage3_cpv",
+    )
+
+    return {
+        "stage1_process_design": stage1,
+        "stage2_ppq": stage2,
+        "stage3_cpv": stage3,
+    }
+
+
+def _normalize_lifecycle_management(
+    value: Any,
+    *,
+    default_plan: Mapping[str, Any],
+) -> dict[str, Any]:
+    raw = value if isinstance(value, Mapping) else default_plan
+    if not isinstance(raw, Mapping):
+        raise ValueError("lifecycle_management must be an object.")
+    established_conditions = _normalize_string_list(
+        raw.get(
+            "established_conditions",
+            default_plan.get("established_conditions", []),
+        ),
+        field_name="lifecycle_management.established_conditions",
+    )
+    post_approval_change_protocols = _normalize_string_list(
+        raw.get(
+            "post_approval_change_protocols",
+            default_plan.get("post_approval_change_protocols", []),
+        ),
+        field_name="lifecycle_management.post_approval_change_protocols",
+    )
+    return {
+        "established_conditions": established_conditions,
+        "post_approval_change_protocols": post_approval_change_protocols,
+    }
 
 
 def _normalize_formulation(value: Any) -> list[dict[str, Any]]:
@@ -1031,4 +1513,3 @@ def _jsonable_value(value: Any) -> Any:
     if isinstance(value, Mapping):
         return {str(key): _jsonable_value(raw) for key, raw in value.items()}
     return str(value)
-

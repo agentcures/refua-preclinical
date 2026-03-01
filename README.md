@@ -20,7 +20,9 @@ The package is designed for direct integration into `refua-studio` and `refua-de
   - grouped concentration summaries (mean/SD/CV)
   - AUC-last/Cmax/Tmax by arm/analyte
 - CMC toolkit:
-  - formulation and process development planning
+  - formulation and process development planning with QTPP/CQA/CMA/CPP mapping
+  - control strategy and process validation lifecycle sections (stage 1/2/3)
+  - lifecycle/change-management planning aligned to ICH Q12 concepts
   - electronic batch record templates
   - stability sample scheduling and trend analysis
   - release criteria assessment (pass/hold decisions)
@@ -151,6 +153,28 @@ The defaults/checks are intentionally aligned with recent primary guidance and s
    https://www.nih.gov/about-nih/who-we-are/nih-director/statements/nih-prioritize-human-based-research-technologies
 8. CDISC standards development page (accessed 2026): ongoing SEND evolution workstreams.
    https://www.cdisc.org/standards/develop
+
+### CMC Basis
+
+1. ICH Q8(R2): pharmaceutical development and quality-by-design framing.
+   https://www.fda.gov/regulatory-information/search-fda-guidance-documents/q8r2-pharmaceutical-development
+2. ICH Q9(R1) (May 2023): quality risk management modernization.
+   https://www.fda.gov/regulatory-information/search-fda-guidance-documents/q9r1-quality-risk-management
+3. ICH Q10: pharmaceutical quality system lifecycle expectations.
+   https://www.fda.gov/regulatory-information/search-fda-guidance-documents/q10-pharmaceutical-quality-system
+4. ICH Q11: drug substance development/manufacturing guidance.
+   https://www.fda.gov/regulatory-information/search-fda-guidance-documents/q11-development-and-manufacture-drug-substances-chemical-entities-and-biotechnologicalbiological
+5. ICH Q12 (Aug 2020): product lifecycle management and established conditions.
+   https://www.fda.gov/regulatory-information/search-fda-guidance-documents/q12-technical-and-regulatory-considerations-pharmaceutical-product-lifecycle-management
+6. ICH Q13 (Mar 2023): continuous manufacturing guidance.
+   https://www.fda.gov/regulatory-information/search-fda-guidance-documents/q13-continuous-manufacturing-drug-substances-and-drug-products
+7. ICH Q2(R2) + Q14 (Mar 2024): analytical validation and development lifecycle.
+   https://www.fda.gov/regulatory-information/search-fda-guidance-documents/q2r2-validation-analytical-procedures
+   https://www.fda.gov/regulatory-information/search-fda-guidance-documents/q14-analytical-procedure-development
+8. ICH Q1A(R2): stability testing framework.
+   https://www.ema.europa.eu/en/ich-q1a-r2-stability-testing-new-drug-substances-products-scientific-guideline
+9. FDA Process Validation (Jan 2011): process design, PPQ, CPV lifecycle.
+   https://www.fda.gov/regulatory-information/search-fda-guidance-documents/process-validation-general-principles-and-practices
 
 ## Notes
 
