@@ -7,7 +7,7 @@
 - Bioanalytical ETL/QC/group summaries/NCA-like metrics
 - CMC workflows: formulation/process development, batch records, stability studies, release criteria evaluation
 
-The package is designed for direct integration into `refua-studio` and `refua-deploy`.
+The package is designed for direct integration into `clawcures-ui` and `refua-deploy`.
 
 ## What It Provides
 
